@@ -14,7 +14,7 @@ const UserSchema = new Schema({
   email: {
     type: String,
     required: true,
-    //unique: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -26,6 +26,5 @@ const UserSchema = new Schema({
   },
 });
 
-const Users = mongoose.model("user", UserSchema);
-Users.createCollection();
-module.exports = Users;
+const user = mongoose.model('user', UserSchema);
+module.exports = user;
