@@ -5,10 +5,11 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 var fetchuser = require("../middleware/fetchuser");
 var jwt = require("jsonwebtoken");
+const Types = require("mongoose");
 
 const JWT_SECRET = "Harryisagoodb$oy";
 
-//creating the user
+//creating the user without login
 router.post(
   "/createnewuser",
   [
@@ -21,9 +22,8 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array.json("") });
+      return res.status(400).json({ errors: errors.array() })
     }
 
     try {
@@ -35,7 +35,7 @@ router.post(
       if (user) {
         return res.status(400).json({ error: "username already exists" });
       }
-
+ 
       const salt = await bcrypt.genSalt(10);
       const secPas = await bcrypt.hash(req.body.password, salt);
 
@@ -72,7 +72,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array().json("") });
+      return res.status(400).json({ errors: errors.array().json() });
     }
     const { username, password } = req.body;
     try {
@@ -90,7 +90,7 @@ router.post(
       //console.log({data})
       const jwtData = jwt.sign(data, JWT_SECRET);
       //console.log(jwtData)
-      res.json({ jwtData });
+      res.json({ jwtData, data });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal server Error");
@@ -98,15 +98,18 @@ router.post(
   }
 );
 
-//get user details
-router.post("/getuser", fetchuser, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const user = await User.findById(userId).select("-password");
-    res.json(user);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send("Internal Server Error");
-  }
-});
+ //get user details
+ router.post("/getuser", fetchuser, async (req, res) => {
+   try {
+     //console.log(req.query)
+     const userId =  req.query.id;
+     //console.log(req)
+     const user = await User.findById(userId).select("-password");
+     //console.log({user})
+     res.send(user);
+   } catch (error) {
+     console.error(error.message);
+     res.status(500).send("Internal Server Error");
+   }
+ });
 module.exports = router;
