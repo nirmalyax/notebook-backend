@@ -36,7 +36,7 @@ router.post(
         title,
         description,
         tag,
-        user : req.query.id,
+        user: req.query.id,
       });
       //console.log({user: req.query.id})
       const savedNote = await note.save();
@@ -90,5 +90,6 @@ router.put(
       { new: true }
     );
     res.json({ note });
-  })
+  }
+);
 module.exports = router;
